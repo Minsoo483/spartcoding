@@ -20,6 +20,11 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
     <title>스파르타코딩클럽 | 부트스트랩 연습하기</title>
+
+    <meta property="og:title" content="웹페이지쇼핑몰" />
+    <meta property="og:description" content="내가 만든 첫 웹서비스!!" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.jpegㅍ') }}" />
+
     <style>
         .main {
             width: 500px;
@@ -51,13 +56,55 @@
         }
     </style>
     <script>
-        function order() {
-            alert("주문이 완료되었습니다.")
-        }
-
         $(document).ready(function () {
              get_rate();
+             order_list();
         });
+
+        function order() {
+                let client = $('#client').val()
+                let mass = $('#inputGroupSelect01').val()
+                let address = $('#address').val()
+                let tel = $('#tel').val()
+
+                $.ajax({
+                    type: "POST",
+                    url: "/order",
+                    data: {client_give: client, mass_give: mass,
+                        address_give: address, tel_give: tel},
+                    success: function (response) {
+                        alert(response["msg"]);
+                        window.location.reload();
+                    }
+                })
+            }
+
+        function order_list(){
+             $.ajax({
+                    type: "GET",
+                    url: "/order",
+                    data: {},
+                    success: function (response) {
+                        let lists = response['order_list']
+                        for (let i = 0; i < lists.length; i++ ){
+                            let client = lists[i]['client']
+                            let mass = lists[i]['mass']
+                            let address = lists[i]['address']
+                            let tel = lists[i]['tel']
+
+
+                            let temp_html = `<tr>
+                                                  <th scope="row">${client}</th>
+                                                  <td>${mass}</td>
+                                                  <td>${address}</td>
+                                                  <td>${tel}</td>
+                                             </tr>`
+                            $('#orderlist-box').append(temp_html)
+
+                        }
+                    }
+                })
+        }
 
         function get_rate(){
             $.ajax({
@@ -86,12 +133,12 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">주문자 이름</span>
         </div>
-        <input type="text" class="form-control" placeholder="" aria-label="Username"
+        <input type="text" class="form-control" id="client" placeholder="" aria-label="Username"
                aria-describedby="basic-addon1">
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <label class="input-group-text" for="inputGroupSelect01">수량</l량bel>
+            <label class="input-group-text" for="inputGroupSelect01">수량</label>
         </div>
         <select class="custom-select" id="inputGroupSelect01">
             <option selected>-- 수량을 선택하세요 --</option>
@@ -104,17 +151,29 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">주소</span>
         </div>
-        <input type="text" class="form-control" placeholder="" aria-label="Username"
+        <input type="text" class="form-control" id="address" placeholder="" aria-label="Username"
                aria-describedby="basic-addon1">
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon1">전화번호</span>
         </div>
-        <input type="text" class="form-control" placeholder="" aria-label="Username"
+        <input type="text" class="form-control" id="tel" placeholder="" aria-label="Username"
                aria-describedby="basic-addon1">
     </div>
     <button type="button" onclick=order() class="btn btn-primary order">주문하기</button>
+    <table class="table">
+		  <thead>
+		    <tr>
+		      <th scope="col">이름</th>
+		      <th scope="col">수량</th>
+		      <th scope="col">주소</th>
+		      <th scope="col">전화번호</th>
+		    </tr>
+		  </thead>
+		  <tbody id="orderlist-box">
+		  </tbody>
+		</table>
 </div>
 </body>
 
